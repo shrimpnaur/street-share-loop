@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, List, Coins, DollarSign, X, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 interface Listing {
   id: string;
@@ -23,78 +25,168 @@ interface Listing {
   };
 }
 
-// Using a demo Mapbox token - users should add their own in production
-const MAPBOX_STYLE = "https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibG92YWJsZS1kZW1vIiwiYSI6ImNtMmVnODY0djBhOTQyanM4OHB6aGp2MWEifQ.rLTaY2kSO9TXlALCbhyxEg";
+// Hardcoded dummy listings for demo
+const DUMMY_LISTINGS: Listing[] = [
+  {
+    id: "1",
+    title: "Power Drill",
+    description: "Makita power drill, barely used",
+    category: "tools",
+    listing_type: "share",
+    price_per_day: null,
+    credit_cost: 5,
+    latitude: 12.9716,
+    longitude: 77.5946,
+    profiles: { full_name: "Raj Kumar", rating_average: 4.5 }
+  },
+  {
+    id: "2",
+    title: "Bicycle",
+    description: "Mountain bike for weekend rides",
+    category: "sports",
+    listing_type: "rent",
+    price_per_day: 100,
+    credit_cost: null,
+    latitude: 12.9750,
+    longitude: 77.5980,
+    profiles: { full_name: "Priya Singh", rating_average: 4.8 }
+  },
+  {
+    id: "3",
+    title: "Camping Tent",
+    description: "4-person tent, perfect condition",
+    category: "outdoor",
+    listing_type: "rent",
+    price_per_day: 200,
+    credit_cost: null,
+    latitude: 12.9700,
+    longitude: 77.5910,
+    profiles: { full_name: "Amit Sharma", rating_average: 4.2 }
+  },
+  {
+    id: "4",
+    title: "Lawn Mower",
+    description: "Electric lawn mower",
+    category: "garden",
+    listing_type: "share",
+    price_per_day: null,
+    credit_cost: 8,
+    latitude: 12.9780,
+    longitude: 77.5930,
+    profiles: { full_name: "Neha Patel", rating_average: 5.0 }
+  },
+  {
+    id: "5",
+    title: "Guitar",
+    description: "Acoustic guitar for beginners",
+    category: "music",
+    listing_type: "rent",
+    price_per_day: 150,
+    credit_cost: null,
+    latitude: 12.9690,
+    longitude: 77.5970,
+    profiles: { full_name: "Arjun Mehta", rating_average: 4.6 }
+  },
+];
+
+mapboxgl.accessToken = "pk.eyJ1IjoibG92YWJsZS1kZW1vIiwiYSI6ImNtMmVnODY0djBhOTQyanM4OHB6aGp2MWEifQ.rLTaY2kSO9TXlALCbhyxEg";
 
 const MapView = () => {
   const navigate = useNavigate();
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [listings, setListings] = useState<Listing[]>(DUMMY_LISTINGS);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
 
   useEffect(() => {
-    const checkAuthAndLoadListings = async () => {
+    const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/auth");
         return;
       }
-
-      // Get user's location if available
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setUserLocation([position.coords.longitude, position.coords.latitude]);
-          },
-          (error) => {
-            console.log("Location access denied, using default location");
-            toast.info("Enable location to see items near you");
-          }
-        );
-      }
-
-      const { data, error } = await supabase
-        .from("listings")
-        .select(`
-          id,
-          title,
-          description,
-          category,
-          listing_type,
-          price_per_day,
-          credit_cost,
-          latitude,
-          longitude,
-          user_id
-        `)
-        .eq("status", "active")
-        .not("latitude", "is", null)
-        .not("longitude", "is", null);
-
-      if (error) {
-        console.error("Error loading listings:", error);
-        return;
-      }
-
-      // Fetch profiles separately
-      const userIds = [...new Set(data?.map(l => l.user_id) || [])];
-      const { data: profilesData } = await supabase
-        .from("profiles")
-        .select("id, full_name, rating_average")
-        .in("id", userIds);
-
-      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
-      
-      const listingsWithProfiles = data?.map(listing => ({
-        ...listing,
-        profiles: profilesMap.get(listing.user_id) || { full_name: "Unknown", rating_average: 0 }
-      })) || [];
-
-      setListings(listingsWithProfiles as any);
     };
-
-    checkAuthAndLoadListings();
+    checkAuth();
   }, [navigate]);
+
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+
+    // Initialize map with dark style (Snapchat-like)
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/dark-v11",
+      center: [77.5946, 12.9716], // Bangalore center
+      zoom: 13,
+      pitch: 45,
+    });
+
+    // Add navigation controls
+    map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+    // Add markers for each listing
+    listings.forEach((listing) => {
+      if (!listing.latitude || !listing.longitude) return;
+
+      // Create custom marker element
+      const el = document.createElement("div");
+      el.className = "custom-marker";
+      el.style.width = "50px";
+      el.style.height = "50px";
+      el.style.cursor = "pointer";
+      
+      // Different styles for share vs rent
+      const isShare = listing.listing_type === "share";
+      const bgGradient = isShare
+        ? "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)))"
+        : "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-light)))";
+      
+      el.innerHTML = `
+        <div style="
+          width: 100%;
+          height: 100%;
+          background: ${bgGradient};
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          color: white;
+          font-size: 18px;
+          transition: transform 0.2s;
+        ">
+          ${isShare ? "S" : "R"}
+        </div>
+      `;
+
+      el.addEventListener("mouseenter", () => {
+        el.style.transform = "scale(1.2)";
+      });
+      
+      el.addEventListener("mouseleave", () => {
+        el.style.transform = "scale(1)";
+      });
+
+      el.addEventListener("click", () => {
+        setSelectedListing(listing);
+      });
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([listing.longitude, listing.latitude])
+        .addTo(map.current!);
+
+      markers.current.push(marker);
+    });
+
+    return () => {
+      markers.current.forEach((marker) => marker.remove());
+      markers.current = [];
+      map.current?.remove();
+    };
+  }, [listings]);
 
   return (
     <div className="h-screen flex flex-col">
@@ -115,52 +207,21 @@ const MapView = () => {
         </div>
       </header>
 
-      {/* Placeholder Map with Listings Grid */}
-      <div className="flex-1 bg-muted/30 relative overflow-hidden">
-        {/* Map placeholder background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="grid grid-cols-4 h-full">
-            {[...Array(20)].map((_, i) => (
-              <div key={i} className="border border-border/20"></div>
-            ))}
-          </div>
-        </div>
-
-        {/* Center message */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Card className="shadow-medium max-w-md mx-4 text-center">
-            <div className="p-8 space-y-4">
-              <div className="h-16 w-16 rounded-full bg-gradient-hero mx-auto flex items-center justify-center">
-                <MapPin className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <h3 className="text-2xl font-bold">Interactive Map Coming Soon</h3>
-              <p className="text-muted-foreground">
-                The Snapchat-style map with real-time listing pins will be available in the next update.
-                For now, use the browse view to see all listings.
-              </p>
-              <div className="pt-4 space-y-2">
-                <Button variant="hero" onClick={() => navigate("/browse")} className="w-full">
-                  Browse Listings
-                </Button>
-                <Button variant="outline" onClick={() => navigate("/dashboard")} className="w-full">
-                  Back to Dashboard
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
+      {/* Map Container */}
+      <div className="flex-1 relative overflow-hidden">
+        <div ref={mapContainer} className="absolute inset-0" />
 
         {/* Legend */}
-        <div className="absolute bottom-6 left-6 bg-card rounded-lg shadow-medium p-4 space-y-2 max-w-[200px]">
+        <div className="absolute bottom-6 left-6 bg-card/95 backdrop-blur-sm rounded-lg shadow-medium p-4 space-y-2 max-w-[200px] z-10">
           <h4 className="font-semibold text-sm mb-2">Legend</h4>
           <div className="flex items-center gap-2 text-sm">
-            <div className="h-6 w-6 rounded-full bg-gradient-hero flex items-center justify-center shrink-0">
+            <div className="h-6 w-6 rounded-full bg-gradient-hero flex items-center justify-center shrink-0 border-2 border-white">
               <span className="text-white text-xs font-bold">S</span>
             </div>
             <span>Share for Credits</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <div className="h-6 w-6 rounded-full bg-gradient-warm flex items-center justify-center shrink-0">
+            <div className="h-6 w-6 rounded-full bg-gradient-warm flex items-center justify-center shrink-0 border-2 border-white">
               <span className="text-white text-xs font-bold">R</span>
             </div>
             <span>Rent for Money</span>
@@ -168,11 +229,58 @@ const MapView = () => {
         </div>
 
         {/* Listing count */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-card rounded-full shadow-medium px-4 py-2">
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-card/95 backdrop-blur-sm rounded-full shadow-medium px-4 py-2 z-10">
           <span className="text-sm font-medium">
-            {listings.length} {listings.length === 1 ? "item" : "items"} available
+            {listings.length} {listings.length === 1 ? "item" : "items"} nearby
           </span>
         </div>
+
+        {/* Selected Listing Card */}
+        {selectedListing && (
+          <div className="absolute bottom-6 right-6 w-80 z-10">
+            <Card className="shadow-elegant bg-card/95 backdrop-blur-sm">
+              <div className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg">{selectedListing.title}</h3>
+                    <p className="text-sm text-muted-foreground">{selectedListing.profiles.full_name}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => setSelectedListing(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <p className="text-sm">{selectedListing.description}</p>
+                
+                <div className="flex items-center gap-2">
+                  <Badge variant={selectedListing.listing_type === "share" ? "default" : "secondary"}>
+                    {selectedListing.listing_type === "share" ? (
+                      <>
+                        <Coins className="h-3 w-3 mr-1" />
+                        {selectedListing.credit_cost} credits
+                      </>
+                    ) : (
+                      <>
+                        <DollarSign className="h-3 w-3 mr-1" />
+                        ₹{selectedListing.price_per_day}/day
+                      </>
+                    )}
+                  </Badge>
+                  <Badge variant="outline">{selectedListing.category}</Badge>
+                </div>
+
+                <Button className="w-full" variant="hero">
+                  Request Item
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
