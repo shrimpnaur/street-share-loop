@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LogOut, Plus, MapPin, List, Package, Coins, TrendingUp, Clock } from "lucide-react";
 import { toast } from "sonner";
+import SplashScreen from "@/components/SplashScreen";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -42,6 +44,10 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -54,17 +60,15 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card/80 backdrop-blur-lg border-b shadow-soft sticky top-0 z-10 animate-fade-in">
+      <header className="bg-card border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-hero flex items-center justify-center shadow-glow animate-scale-in">
+            <div className="h-10 w-10 rounded-full bg-gradient-hero flex items-center justify-center">
               <span className="text-xl font-bold text-primary-foreground">L</span>
             </div>
-            <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              Lendly
-            </h1>
+            <h1 className="text-xl font-bold">Lendly</h1>
           </div>
           
           <div className="flex items-center gap-3">
@@ -72,7 +76,6 @@ const Dashboard = () => {
               variant="outline"
               size="sm"
               onClick={() => navigate("/profile")}
-              className="transition-all duration-300 hover:shadow-medium"
             >
               Profile
             </Button>
@@ -80,7 +83,6 @@ const Dashboard = () => {
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="transition-all duration-300"
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -91,85 +93,58 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
-        <div className="relative mb-12 animate-fade-in overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 bg-[length:200%_100%] animate-gradient-shift p-8 shadow-elegant" style={{ animationDelay: "100ms" }}>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer"></div>
-          <div className="relative z-10">
-            <h2 className="text-5xl font-bold mb-3 bg-gradient-hero bg-clip-text text-transparent animate-pulse-glow">
-              Welcome back!
-            </h2>
-            <p className="text-muted-foreground text-xl">Discover items shared by your neighbors</p>
-          </div>
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-hero opacity-20 blur-3xl animate-float"></div>
-          <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-gradient-warm opacity-20 blur-3xl animate-float" style={{ animationDelay: "3s" }}></div>
+        <div className="mb-12 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 p-8">
+          <h2 className="text-4xl font-bold mb-3">Welcome back!</h2>
+          <p className="text-muted-foreground text-lg">Discover items shared by your neighbors</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 shadow-medium hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 animate-fade-in group" style={{ animationDelay: "200ms" }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="h-12 w-12 rounded-full bg-gradient-hero flex items-center justify-center shadow-glow animate-pulse-glow">
-                  <Package className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <TrendingUp className="h-5 w-5 text-primary animate-float" />
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Package className="h-6 w-6 text-primary" />
               </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground font-medium">Your Listings</p>
-                <p className="text-3xl font-bold">0</p>
-              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Your Listings</p>
+              <p className="text-3xl font-bold">0</p>
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 shadow-medium hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 animate-fade-in group" style={{ animationDelay: "300ms" }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="h-12 w-12 rounded-full bg-gradient-warm flex items-center justify-center shadow-glow animate-pulse-glow" style={{ animationDelay: "1s" }}>
-                  <Clock className="h-6 w-6 text-white" />
-                </div>
-                <TrendingUp className="h-5 w-5 text-accent animate-float" style={{ animationDelay: "2s" }} />
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-accent" />
               </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground font-medium">Active Requests</p>
-                <p className="text-3xl font-bold">0</p>
-              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Active Requests</p>
+              <p className="text-3xl font-bold">0</p>
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 shadow-medium hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 animate-fade-in group" style={{ animationDelay: "400ms" }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="h-12 w-12 rounded-full bg-gradient-hero flex items-center justify-center shadow-glow animate-pulse-glow" style={{ animationDelay: "2s" }}>
-                  <Coins className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Coins className="h-6 w-6 text-primary" />
               </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground font-medium">Credits Balance</p>
-                <p className="text-3xl font-bold">100</p>
-              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Credits Balance</p>
+              <p className="text-3xl font-bold">100</p>
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 shadow-medium hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 animate-fade-in group" style={{ animationDelay: "500ms" }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="h-12 w-12 rounded-full bg-gradient-warm flex items-center justify-center shadow-glow animate-pulse-glow" style={{ animationDelay: "3s" }}>
-                  <TrendingUp className="h-6 w-6 text-white" />
-                </div>
-                <div className="flex gap-1">
-                  <div className="h-1 w-1 rounded-full bg-accent animate-pulse"></div>
-                  <div className="h-1 w-1 rounded-full bg-accent animate-pulse" style={{ animationDelay: "150ms" }}></div>
-                  <div className="h-1 w-1 rounded-full bg-accent animate-pulse" style={{ animationDelay: "300ms" }}></div>
-                </div>
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-3">
+              <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-accent" />
               </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground font-medium">Community Score</p>
-                <p className="text-3xl font-bold">5.0</p>
-              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Community Score</p>
+              <p className="text-3xl font-bold">5.0</p>
             </div>
           </Card>
         </div>
@@ -177,54 +152,45 @@ const Dashboard = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card 
-            className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-2 animate-fade-in border-2 border-primary/20 hover:border-primary/40"
-            style={{ animationDelay: "600ms" }}
+            className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             onClick={() => navigate("/create-listing")}
           >
-            <div className="absolute inset-0 bg-gradient-hero opacity-5 group-hover:opacity-10 transition-opacity duration-300 animate-gradient-shift bg-[length:200%_100%]"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
-            <div className="relative p-8 text-center space-y-4">
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-glow group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 animate-float">
+            <div className="p-8 text-center space-y-4">
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-hero flex items-center justify-center">
                 <Plus className="h-8 w-8 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">Share or Rent</h3>
+                <h3 className="font-bold text-xl mb-2">Share or Rent</h3>
                 <p className="text-sm text-muted-foreground">List an item in seconds</p>
               </div>
             </div>
           </Card>
           
           <Card 
-            className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-2 animate-fade-in border-2 border-border hover:border-primary/20"
-            style={{ animationDelay: "700ms" }}
+            className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             onClick={() => navigate("/browse")}
           >
-            <div className="absolute inset-0 bg-gradient-hero opacity-0 group-hover:opacity-5 transition-opacity duration-300 animate-gradient-shift bg-[length:200%_100%]"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
-            <div className="relative p-8 text-center space-y-4">
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-muted flex items-center justify-center group-hover:bg-gradient-hero group-hover:shadow-glow transition-all duration-300 group-hover:scale-110 animate-float" style={{ animationDelay: "1s" }}>
-                <List className="h-8 w-8 text-foreground group-hover:text-primary-foreground transition-colors" />
+            <div className="p-8 text-center space-y-4">
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
+                <List className="h-8 w-8 text-foreground" />
               </div>
               <div>
-                <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">Browse Listings</h3>
+                <h3 className="font-bold text-xl mb-2">Browse Listings</h3>
                 <p className="text-sm text-muted-foreground">Explore available items</p>
               </div>
             </div>
           </Card>
           
           <Card 
-            className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-2 animate-fade-in border-2 border-border hover:border-primary/20"
-            style={{ animationDelay: "800ms" }}
+            className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             onClick={() => navigate("/map")}
           >
-            <div className="absolute inset-0 bg-gradient-hero opacity-0 group-hover:opacity-5 transition-opacity duration-300 animate-gradient-shift bg-[length:200%_100%]"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
-            <div className="relative p-8 text-center space-y-4">
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-muted flex items-center justify-center group-hover:bg-gradient-hero group-hover:shadow-glow transition-all duration-300 group-hover:scale-110 animate-float" style={{ animationDelay: "2s" }}>
-                <MapPin className="h-8 w-8 text-foreground group-hover:text-primary-foreground transition-colors" />
+            <div className="p-8 text-center space-y-4">
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
+                <MapPin className="h-8 w-8 text-foreground" />
               </div>
               <div>
-                <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">Map View</h3>
+                <h3 className="font-bold text-xl mb-2">Map View</h3>
                 <p className="text-sm text-muted-foreground">See items on the map</p>
               </div>
             </div>
@@ -232,14 +198,13 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Activity */}
-        <Card className="p-8 shadow-medium border-2 animate-fade-in" style={{ animationDelay: "900ms" }}>
+        <Card className="p-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-bold">Recent Activity</h3>
-            <div className="h-8 w-8 rounded-full bg-muted animate-pulse"></div>
           </div>
           <div className="text-center py-12 space-y-4">
-            <div className="mx-auto h-20 w-20 rounded-full bg-gradient-hero/10 flex items-center justify-center">
-              <Clock className="h-10 w-10 text-primary/50" />
+            <div className="mx-auto h-20 w-20 rounded-full bg-muted flex items-center justify-center">
+              <Clock className="h-10 w-10 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground text-lg">
               No recent activity yet
@@ -248,9 +213,8 @@ const Dashboard = () => {
               Start by creating your first listing or browsing items in your neighborhood!
             </p>
             <Button 
-              variant="hero" 
               onClick={() => navigate("/create-listing")}
-              className="mt-4 transition-all duration-300 hover:shadow-glow"
+              className="mt-4"
             >
               Create Your First Listing
             </Button>
