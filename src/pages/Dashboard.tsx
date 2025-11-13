@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { LogOut, Plus, MapPin, List, Clock, Coins, TrendingUp, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 import { DashboardDrawer } from "@/components/DashboardDrawer";
@@ -188,6 +188,74 @@ const Dashboard = () => {
               </div>
             </div>
           </Card>
+        </div>
+
+        {/* About Us Section */}
+        <div className="mt-16 space-y-12">
+          {/* About Us */}
+          <section className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">About Lendly</h2>
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              Lendly is a community-based sharing and rental platform designed to connect neighbors. 
+              We believe in building stronger communities by making it easy to share resources, 
+              reduce waste, and create opportunities for everyone to benefit from the sharing economy.
+            </p>
+          </section>
+
+          {/* Our Aim & Goal */}
+          <section className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">Our Aim & Goal</h2>
+            <p className="text-muted-foreground text-lg leading-relaxed mb-6">
+              We aim to foster neighborhood collaboration, reduce waste, and create small-scale earning 
+              opportunities through a sustainable, trust-driven sharing economy. Our goal is to make 
+              everyday items accessible to everyone while building trust and community bonds.
+            </p>
+          </section>
+
+          {/* How It Works */}
+          <section className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-8 text-center">How Lendly Works</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardContent className="pt-6 text-center space-y-3">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <span className="text-3xl font-bold text-primary">1</span>
+                  </div>
+                  <h3 className="font-bold text-xl">List Your Item</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Share items for credits or rent them out for money. Upload photos and set your terms.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6 text-center space-y-3">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <span className="text-3xl font-bold text-primary">2</span>
+                  </div>
+                  <h3 className="font-bold text-xl">Connect & Request</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Browse nearby items on the map or list. Send requests to neighbors within 10km.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6 text-center space-y-3">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <span className="text-3xl font-bold text-primary">3</span>
+                  </div>
+                  <h3 className="font-bold text-xl">Share & Earn</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Complete transactions with secure handover codes. Build your community score and earn credits or money.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* Footer Spacing */}
+          <div className="h-12"></div>
         </div>
       </main>
     </div>
