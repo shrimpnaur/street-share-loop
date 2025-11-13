@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import CreateListing from "./pages/CreateListing";
 import Browse from "./pages/Browse";
 import MapView from "./pages/Map";
+import Requests from "./pages/Requests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => {
             <Route path="/create-listing" element={<CreateListing />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/map" element={<MapView />} />
+            <Route path="/requests" element={<Requests />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
