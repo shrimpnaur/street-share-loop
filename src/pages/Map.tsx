@@ -125,6 +125,59 @@ const MapView = () => {
     // Add navigation controls
     map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
+    // Add 10km radius circle
+    map.current.on('load', () => {
+      if (!map.current) return;
+      
+      const center: [number, number] = [77.5946, 12.9716];
+      const radiusInKm = 10;
+      const points = 64;
+      const distanceX = radiusInKm / (111.32 * Math.cos(center[1] * Math.PI / 180));
+      const distanceY = radiusInKm / 110.574;
+
+      const coordinates = [];
+      for (let i = 0; i < points; i++) {
+        const theta = (i / points) * (2 * Math.PI);
+        const x = distanceX * Math.cos(theta);
+        const y = distanceY * Math.sin(theta);
+        coordinates.push([center[0] + x, center[1] + y]);
+      }
+      coordinates.push(coordinates[0]);
+
+      map.current.addSource('radius', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [coordinates]
+          },
+          properties: {}
+        }
+      });
+
+      map.current.addLayer({
+        id: 'radius-fill',
+        type: 'fill',
+        source: 'radius',
+        paint: {
+          'fill-color': '#34d399',
+          'fill-opacity': 0.1
+        }
+      });
+
+      map.current.addLayer({
+        id: 'radius-outline',
+        type: 'line',
+        source: 'radius',
+        paint: {
+          'line-color': '#34d399',
+          'line-width': 2,
+          'line-dasharray': [2, 2]
+        }
+      });
+    });
+
     // Add markers for each listing
     listings.forEach((listing) => {
       if (!listing.latitude || !listing.longitude) return;
