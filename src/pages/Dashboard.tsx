@@ -99,7 +99,7 @@ const Dashboard = () => {
           {/* Requests Card */}
           <Card 
             className="cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => navigate("/browse")}
+            onClick={() => navigate("/requests")}
           >
             <div className="p-8 text-center space-y-4">
               <div className="mx-auto h-20 w-20 rounded-full bg-accent/10 flex items-center justify-center">
