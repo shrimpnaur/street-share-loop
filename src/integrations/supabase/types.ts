@@ -259,9 +259,9 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string | null
-          credits: number | null
           full_name: string | null
           id: string | null
+          masked_phone: string | null
           rating_average: number | null
           rating_count: number | null
         }
@@ -269,9 +269,9 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
-          credits?: number | null
           full_name?: string | null
           id?: string | null
+          masked_phone?: never
           rating_average?: number | null
           rating_count?: number | null
         }
@@ -279,9 +279,9 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
-          credits?: number | null
           full_name?: string | null
           id?: string | null
+          masked_phone?: never
           rating_average?: number | null
           rating_count?: number | null
         }
