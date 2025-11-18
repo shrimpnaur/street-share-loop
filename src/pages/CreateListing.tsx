@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { listingSchema } from "@/lib/validations/listing";
 
 const CATEGORIES = [
   "Tools & Equipment",
@@ -56,22 +57,35 @@ const CreateListing = () => {
     setIsLoading(true);
 
     try {
-      const listingData: any = {
-        user_id: userId,
+      // Validate form data
+      const validatedData = listingSchema.parse({
         title: formData.title,
         description: formData.description,
         category: formData.category,
-        listing_type: formData.listing_type,
+        listingType: formData.listing_type as "share" | "rent",
+        pricePerDay: formData.price_per_day ? parseFloat(formData.price_per_day) : undefined,
+        depositAmount: formData.deposit_amount ? parseFloat(formData.deposit_amount) : undefined,
+        creditCost: formData.credit_cost ? parseInt(formData.credit_cost) : undefined,
+        availableFrom: formData.available_from ? new Date(formData.available_from) : new Date(),
+        availableUntil: formData.available_until ? new Date(formData.available_until) : new Date(),
+      });
+
+      const listingData: any = {
+        user_id: userId,
+        title: validatedData.title,
+        description: validatedData.description,
+        category: validatedData.category,
+        listing_type: validatedData.listingType,
         available_from: formData.available_from || null,
         available_until: formData.available_until || null,
         status: "active"
       };
 
-      if (formData.listing_type === "rent") {
-        listingData.price_per_day = parseFloat(formData.price_per_day);
-        listingData.deposit_amount = formData.deposit_amount ? parseFloat(formData.deposit_amount) : null;
+      if (validatedData.listingType === "rent") {
+        listingData.price_per_day = validatedData.pricePerDay;
+        listingData.deposit_amount = validatedData.depositAmount || null;
       } else {
-        listingData.credit_cost = parseInt(formData.credit_cost);
+        listingData.credit_cost = validatedData.creditCost;
       }
 
       const { error } = await supabase
@@ -83,8 +97,15 @@ const CreateListing = () => {
       toast.success("Listing created successfully!");
       navigate("/browse");
     } catch (error: any) {
-      toast.error(error.message || "Failed to create listing");
-      console.error("Error creating listing:", error);
+      if (error.errors) {
+        // Zod validation error
+        error.errors.forEach((err: any) => {
+          toast.error(err.message);
+        });
+      } else {
+        toast.error(error.message || "Failed to create listing");
+        if (import.meta.env.DEV) console.error("Error creating listing:", error);
+      }
     } finally {
       setIsLoading(false);
     }

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
+import { loginSchema, signupSchema } from "@/lib/validations/auth";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -41,21 +42,32 @@ const Auth = () => {
 
     try {
       if (isLogin) {
+        // Validate login data
+        const validatedData = loginSchema.parse({ email, password });
+        
         const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+          email: validatedData.email,
+          password: validatedData.password,
         });
 
         if (error) throw error;
         toast.success("Welcome back!");
       } else {
+        // Validate signup data
+        const validatedData = signupSchema.parse({ 
+          email, 
+          password, 
+          fullName, 
+          phone 
+        });
+        
         const { error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: validatedData.email,
+          password: validatedData.password,
           options: {
             data: {
-              full_name: fullName,
-              phone: phone,
+              full_name: validatedData.fullName,
+              phone: validatedData.phone,
             },
             emailRedirectTo: `${window.location.origin}/dashboard`,
           },
@@ -65,7 +77,14 @@ const Auth = () => {
         toast.success("Account created! Please check your email.");
       }
     } catch (error: any) {
-      toast.error(error.message || "An error occurred");
+      if (error.errors) {
+        // Zod validation error
+        error.errors.forEach((err: any) => {
+          toast.error(err.message);
+        });
+      } else {
+        toast.error(error.message || "An error occurred");
+      }
     } finally {
       setIsLoading(false);
     }

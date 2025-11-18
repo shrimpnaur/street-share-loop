@@ -212,6 +212,13 @@ export type Database = {
             referencedRelation: "listings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listings"
+            referencedColumns: ["id"]
+          },
         ]
       }
       reviews: {
@@ -254,6 +261,63 @@ export type Database = {
       }
     }
     Views: {
+      public_listings: {
+        Row: {
+          available_from: string | null
+          available_until: string | null
+          category: string | null
+          created_at: string | null
+          credit_cost: number | null
+          deposit_amount: number | null
+          description: string | null
+          id: string | null
+          images: string[] | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
+          price_per_day: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_from?: string | null
+          available_until?: string | null
+          category?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          deposit_amount?: number | null
+          description?: string | null
+          id?: string | null
+          images?: string[] | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
+          price_per_day?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_from?: string | null
+          available_until?: string | null
+          category?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          deposit_amount?: number | null
+          description?: string | null
+          id?: string | null
+          images?: string[] | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
+          price_per_day?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
