@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, User, Star, Coins, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { profileSchema } from "@/lib/validations/profile";
 
 interface Profile {
   id: string;
@@ -101,20 +102,43 @@ const Profile = () => {
     if (!profile) return;
 
     setIsSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update(formData)
-      .eq("id", profile.id);
+    try {
+      // Validate form data
+      const validatedData = profileSchema.parse({
+        fullName: formData.full_name,
+        phone: formData.phone,
+        bio: formData.bio,
+        address: formData.address,
+        avatarUrl: profile.avatar_url || "",
+      });
 
-    if (error) {
-      toast.error("Failed to update profile");
-      console.error("Error updating profile:", error);
-    } else {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: validatedData.fullName,
+          phone: validatedData.phone || null,
+          bio: validatedData.bio || null,
+          address: validatedData.address || null,
+        })
+        .eq("id", profile.id);
+
+      if (error) throw error;
+
       toast.success("Profile updated successfully!");
       setProfile({ ...profile, ...formData });
+    } catch (error: any) {
+      if (error.errors) {
+        // Zod validation error
+        error.errors.forEach((err: any) => {
+          toast.error(err.message);
+        });
+      } else {
+        toast.error("Failed to update profile");
+        if (import.meta.env.DEV) console.error("Error updating profile:", error);
+      }
+    } finally {
+      setIsSaving(false);
     }
-    
-    setIsSaving(false);
   };
 
   if (isLoading) {
