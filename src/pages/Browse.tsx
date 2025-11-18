@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Search, MapPin, Coins, DollarSign } from "lucide-react";
+import { toast } from "sonner";
 
 interface Listing {
   id: string;
@@ -57,7 +58,8 @@ const Browse = () => {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error loading listings:", error);
+        if (import.meta.env.DEV) console.error("Error loading listings:", error);
+        toast.error("Failed to load listings");
         setIsLoading(false);
         return;
       }

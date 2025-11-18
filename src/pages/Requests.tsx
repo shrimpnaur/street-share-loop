@@ -116,7 +116,7 @@ const Requests = () => {
       setIncomingRequests(incoming as Request[]);
       setOutgoingRequests(outgoing as Request[]);
     } catch (error) {
-      console.error("Error fetching requests:", error);
+      if (import.meta.env.DEV) console.error("Error fetching requests:", error);
       toast.error("Failed to load requests");
     } finally {
       setIsLoading(false);
@@ -125,56 +125,57 @@ const Requests = () => {
 
   const handleAcceptRequest = async (requestId: string) => {
     try {
-      const handoverCode = Math.floor(1000 + Math.random() * 9000).toString();
-      
-      const { error } = await supabase
-        .from("requests")
-        .update({ 
-          status: "approved",
-          handover_code: handoverCode
-        })
-        .eq("id", requestId);
+      const { data, error } = await supabase.functions.invoke('update-request-status', {
+        body: {
+          requestId,
+          action: 'approve',
+        },
+      });
 
       if (error) throw error;
 
-      toast.success(`Request approved! Handover code: ${handoverCode}`);
+      toast.success(`Request approved! Handover code: ${data.handoverCode}`);
       if (user) await fetchRequests(user.id);
     } catch (error) {
-      console.error("Error accepting request:", error);
+      if (import.meta.env.DEV) console.error("Error accepting request:", error);
       toast.error("Failed to accept request");
     }
   };
 
   const handleRejectRequest = async (requestId: string) => {
     try {
-      const { error } = await supabase
-        .from("requests")
-        .update({ status: "rejected" })
-        .eq("id", requestId);
+      const { error } = await supabase.functions.invoke('update-request-status', {
+        body: {
+          requestId,
+          action: 'reject',
+        },
+      });
 
       if (error) throw error;
 
       toast.success("Request rejected");
       if (user) await fetchRequests(user.id);
     } catch (error) {
-      console.error("Error rejecting request:", error);
+      if (import.meta.env.DEV) console.error("Error rejecting request:", error);
       toast.error("Failed to reject request");
     }
   };
 
   const handleCancelRequest = async (requestId: string) => {
     try {
-      const { error } = await supabase
-        .from("requests")
-        .update({ status: "cancelled" })
-        .eq("id", requestId);
+      const { error } = await supabase.functions.invoke('update-request-status', {
+        body: {
+          requestId,
+          action: 'cancel',
+        },
+      });
 
       if (error) throw error;
 
       toast.success("Request cancelled");
       if (user) await fetchRequests(user.id);
     } catch (error) {
-      console.error("Error cancelling request:", error);
+      if (import.meta.env.DEV) console.error("Error cancelling request:", error);
       toast.error("Failed to cancel request");
     }
   };

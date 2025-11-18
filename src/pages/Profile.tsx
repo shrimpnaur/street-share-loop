@@ -66,7 +66,7 @@ const Profile = () => {
         .single();
 
       if (profileError) {
-        console.error("Error loading profile:", profileError);
+        if (import.meta.env.DEV) console.error("Error loading profile:", profileError);
         toast.error("Failed to load profile");
       } else if (profileData) {
         setProfile(profileData);
@@ -86,7 +86,8 @@ const Profile = () => {
         .order("created_at", { ascending: false });
 
       if (listingsError) {
-        console.error("Error loading listings:", listingsError);
+        if (import.meta.env.DEV) console.error("Error loading listings:", listingsError);
+        toast.error("Failed to load listings");
       } else if (listingsData) {
         setListings(listingsData);
       }
