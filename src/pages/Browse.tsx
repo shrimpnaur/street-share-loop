@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Search, MapPin, Coins, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { FloatingNavBar } from "@/components/FloatingNavBar";
+import { ListingDetailDialog } from "@/components/ListingDetailDialog";
 
 interface Listing {
   id: string;
@@ -32,6 +33,7 @@ const Browse = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuthAndLoadListings = async () => {
@@ -193,7 +195,11 @@ const Browse = () => {
                         ⭐ {listing.profiles?.rating_average?.toFixed(1) || "New"}
                       </span>
                     </div>
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setSelectedListingId(listing.id)}
+                    >
                       View Details
                     </Button>
                   </div>
@@ -206,6 +212,15 @@ const Browse = () => {
 
       {/* Floating Navigation Bar */}
       <FloatingNavBar />
+
+      {/* Listing Detail Dialog */}
+      {selectedListingId && (
+        <ListingDetailDialog
+          listingId={selectedListingId}
+          open={!!selectedListingId}
+          onOpenChange={(open) => !open && setSelectedListingId(null)}
+        />
+      )}
     </div>
   );
 };
