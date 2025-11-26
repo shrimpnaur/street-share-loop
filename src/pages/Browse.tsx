@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Search, MapPin, Coins, DollarSign } from "lucide-react";
 import { toast } from "sonner";
+import { FloatingNavBar } from "@/components/FloatingNavBar";
 
 interface Listing {
   id: string;
@@ -93,7 +94,7 @@ const Browse = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-gradient-subtle pb-24">
       <header className="bg-card border-b shadow-soft sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate("/dashboard")}>
@@ -202,6 +203,9 @@ const Browse = () => {
           </div>
         )}
       </main>
+
+      {/* Floating Navigation Bar */}
+      <FloatingNavBar />
     </div>
   );
 };
