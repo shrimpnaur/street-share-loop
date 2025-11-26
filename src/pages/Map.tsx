@@ -8,6 +8,7 @@ import { ArrowLeft, List, Coins, DollarSign, X, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { FloatingNavBar } from "@/components/FloatingNavBar";
 
 interface Listing {
   id: string;
@@ -242,7 +243,7 @@ const MapView = () => {
   }, [listings]);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col pb-24">
       {/* Header */}
       <header className="bg-card border-b shadow-soft z-20">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -335,6 +336,9 @@ const MapView = () => {
           </div>
         )}
       </div>
+
+      {/* Floating Navigation Bar */}
+      <FloatingNavBar />
     </div>
   );
 };
