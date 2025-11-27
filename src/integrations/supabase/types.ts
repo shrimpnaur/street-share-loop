@@ -157,6 +157,8 @@ export type Database = {
       }
       requests: {
         Row: {
+          contact_date: string | null
+          contact_time: string | null
           created_at: string | null
           credits_held: number | null
           end_date: string
@@ -173,6 +175,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          contact_date?: string | null
+          contact_time?: string | null
           created_at?: string | null
           credits_held?: number | null
           end_date: string
@@ -189,6 +193,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          contact_date?: string | null
+          contact_time?: string | null
           created_at?: string | null
           credits_held?: number | null
           end_date?: string
